@@ -1,0 +1,10 @@
+libdir=${GOPATH}/lib/darwin_386/libgit2
+includedir=${GOPATH}/include/libgit2
+
+Name: libgit2
+Description: The git library, take 2
+Version: 0.20.0
+Requires.private:  openssl
+Libs.private:  -lz -L/usr/lib -liconv
+Libs: -L${libdir} -lgit2
+Cflags: -I${includedir}
