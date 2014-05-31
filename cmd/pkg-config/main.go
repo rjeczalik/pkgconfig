@@ -1,7 +1,7 @@
 // cmd/pkg-config is a Go-centric and GOPATH-aware pkg-config replacement
 // for use with the cgo tool.
 //
-// Using cmd/pkg-config with the cgo command
+// ** Using cmd/pkg-config with the cgo command **
 //
 // To use cmd/pkg-config go install it and ensure it's in the PATH. A NOTE for
 // Linux users: the cmd/pkg-config must be present before original
@@ -47,7 +47,7 @@
 // The cmd/pkg-config tool looks up for a PC file in two other places in addition
 // do the original pkg-config: $GOPATH and github.com.
 //
-// The cmd/pkg-config tool and $GOPATH
+// ** The cmd/pkg-config tool and $GOPATH **
 //
 // The cmd/pkg-config defines standard directory layout for C libraries:
 //
@@ -93,7 +93,7 @@
 //   Libs.private: -lz -lm
 //   Cflags: -I${includedir}
 //
-// The cmd/pkg-config tool and github.com
+// ** The cmd/pkg-config tool and github.com **
 //
 // Although it's advised to always use an official or self-compiled libraries for
 // a production use, cmd/pkg-config can download a zip archive from project's
@@ -133,10 +133,10 @@ const USAGE = `NAME:
 		pkg-config - Go-centric pkg-config replacement
 
 USAGE:
-		pkg-config --libs PKG
-		pkg-config --cflags PKG
-		pkg-config --cflags --libs PKG1 PKG2
-		pkg-config get github.com/USER/PROJ PKG`
+		pkg-config --libs LIB
+		pkg-config --cflags LIB
+		pkg-config --cflags --libs LIB1 LIB2
+		pkg-config get github.com/USER/PROJECT LIB`
 
 func die(v ...interface{}) {
 	for _, v := range v {
@@ -158,11 +158,10 @@ func main() {
 			if len(os.Args) != 4 {
 				die(USAGE)
 			}
-			pc, err := pkgconfig.LookupGithubProj(os.Args[3], os.Args[2])
+			_, err := pkgconfig.LookupGithubProj(os.Args[3], os.Args[2])
 			if err != nil {
 				die(err)
 			}
-			_ = pc
 		default:
 			pkg := pkgconfig.NewPkgArgs(os.Args[1:])
 			if err := pkg.Resolve(); err == nil {
