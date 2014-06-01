@@ -1,0 +1,11 @@
+language: go
+go:
+ - 1.2.2
+ - tip
+install:
+ - go get code.google.com/p/go.tools/cmd/vet
+ - go get -v ./...
+script:
+ - go tool vet -all .
+ - go build ./...
+ - go test -race -v ./...
