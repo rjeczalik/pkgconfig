@@ -55,22 +55,22 @@ func TestPkgResolve(t *testing.T) {
 	}
 	cases := []struct {
 		pkgs []string
-		pc   map[string]*PC
+		pc   []*PC
 	}{{
 		[]string{"A"},
-		map[string]*PC{"A": all["A"]},
+		[]*PC{all["A"]},
 	}, {
 		[]string{"A", "A", "A"},
-		map[string]*PC{"A": all["A"]},
+		[]*PC{all["A"]},
 	}, {
 		[]string{"A", "B", "C"},
-		map[string]*PC{"B": all["B"], "C": all["C"], "A": all["A"]},
+		[]*PC{all["A"], all["B"], all["C"]},
 	}, {
 		[]string{"A", "B", "C", "D", "E"},
-		map[string]*PC{"A": all["A"], "B": all["B"], "C": all["C"], "D": all["D"], "E": all["E"]},
+		[]*PC{all["A"], all["B"], all["C"], all["D"], all["E"]},
 	}, {
 		[]string{"A", "A", "A", "B", "B", "B", "E", "E", "E"},
-		map[string]*PC{"A": all["A"], "E": all["E"], "B": all["B"]},
+		[]*PC{all["A"], all["B"], all["E"]},
 	}}
 	for i, cas := range cases {
 		pkg := &Pkg{
@@ -121,67 +121,67 @@ func TestPkgResolveAccept(t *testing.T) {
 
 func TestPkgWriteTo(t *testing.T) {
 	var buf bytes.Buffer
-	newpkg := func(cflags, libs bool, c, l map[string][]string) *Pkg {
-		pkg := &Pkg{Cflags: cflags, Libs: libs, pc: make(map[string]*PC, len(c))}
-		for k := range c {
-			pkg.pc[k] = &PC{Cflags: c[k], Libs: l[k]}
+	newpkg := func(cflags, libs bool, c, l [][]string) *Pkg {
+		pkg := &Pkg{Cflags: cflags, Libs: libs, pc: make([]*PC, len(c))}
+		for i := range c {
+			pkg.pc[i] = &PC{Cflags: c[i], Libs: l[i]}
 		}
 		return pkg
 	}
 	cases := []struct {
 		cflags bool
-		c      map[string][]string
+		c      [][]string
 		libs   bool
-		l      map[string][]string
+		l      [][]string
 		exp    []byte
 	}{{
-		true, map[string][]string{
-			"A": {"-ca"},
-			"B": {"-cb"},
+		true, [][]string{
+			0: {"-ca"},
+			1: {"-cb"},
 		},
-		true, map[string][]string{
-			"A": {"-la"},
-			"B": {"-lb"},
+		true, [][]string{
+			0: {"-la"},
+			1: {"-lb"},
 		},
 		[]byte("-ca -cb -la -lb\n"),
 	}, {
-		true, map[string][]string{
-			"A": {"-ca", "-a", "-a"},
-			"B": {"-b", "-cb", "-b"},
+		true, [][]string{
+			0: {"-ca", "-a", "-a"},
+			1: {"-b", "-cb", "-b"},
 		},
-		true, map[string][]string{
-			"A": {"-a", "-la"},
-			"B": {"-lb", "-b"},
+		true, [][]string{
+			0: {"-a", "-la"},
+			1: {"-lb", "-b"},
 		},
 		[]byte("-ca -a -b -cb -la -lb\n"),
 	}, {
-		true, map[string][]string{
-			"A": {"-ca", "-l", "-a", "-a"},
-			"B": {"-b", "-l", "-cb", "-b", "-x"},
+		true, [][]string{
+			0: {"-ca", "-l", "-a", "-a"},
+			1: {"-b", "-l", "-cb", "-b", "-x"},
 		},
-		true, map[string][]string{
-			"A": {"-a", "-l", "-la"},
-			"B": {"-lb", "-l", "-b", "-x"},
+		true, [][]string{
+			0: {"-a", "-l", "-la"},
+			1: {"-lb", "-l", "-b", "-x"},
 		},
 		[]byte("-ca -l -a -b -cb -x -la -lb\n"),
 	}, {
-		true, map[string][]string{
-			"A": {"-ca", "-l", "-a", "-a"},
-			"B": {"-b", "-l", "-cb", "-b", "-x"},
+		true, [][]string{
+			0: {"-ca", "-l", "-a", "-a"},
+			1: {"-b", "-l", "-cb", "-b", "-x"},
 		},
-		false, map[string][]string{
-			"A": {"-a", "-l", "-la"},
-			"B": {"-lb", "-l", "-b", "-x"},
+		false, [][]string{
+			0: {"-a", "-l", "-la"},
+			1: {"-lb", "-l", "-b", "-x"},
 		},
 		[]byte("-ca -l -a -b -cb -x\n"),
 	}, {
-		false, map[string][]string{
-			"A": {"-ca", "-l", "-a", "-a"},
-			"B": {"-b", "-l", "-cb", "-b", "-x"},
+		false, [][]string{
+			0: {"-ca", "-l", "-a", "-a"},
+			1: {"-b", "-l", "-cb", "-b", "-x"},
 		},
-		true, map[string][]string{
-			"A": {"-a", "-l", "-la"},
-			"B": {"-lb", "-l", "-b", "-x"},
+		true, [][]string{
+			0: {"-a", "-l", "-la"},
+			1: {"-lb", "-l", "-b", "-x"},
 		},
 		[]byte("-a -l -la -lb -b -x\n"),
 	}}

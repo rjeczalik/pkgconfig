@@ -40,7 +40,7 @@ type Pkg struct {
 	Libs     bool
 	Cflags   bool
 	Lookup   func(string) (*PC, error)
-	pc       map[string]*PC
+	pc       []*PC
 }
 
 // NewPkgArgs TODO(rjeczalik): document
@@ -69,15 +69,21 @@ func (pkg *Pkg) Resolve() error {
 	if lu == nil {
 		lu = DefaultLookup
 	}
-	m := make(map[string]*PC)
+	var (
+		pc   = make([]*PC, 0, len(pkg.Packages))
+		dups = make(map[string]struct{})
+	)
 	for _, p := range pkg.Packages {
-		pc, err := lu(p)
-		if err != nil {
-			return err
+		if _, ok := dups[p]; !ok {
+			pkg, err := lu(p)
+			if err != nil {
+				return err
+			}
+			pc = append(pc, pkg)
+			dups[p] = struct{}{}
 		}
-		m[p] = pc
 	}
-	pkg.pc = m
+	pkg.pc = pc
 	return nil
 }
 

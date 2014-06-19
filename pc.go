@@ -34,20 +34,20 @@ func (pc *PC) WriteTo(w io.Writer) (int64, error) {
 	var buf bytes.Buffer
 	buf.WriteByte('\n')
 	// TODO(rjeczalik): map interation order?
-	for k, v := range map[string]string{
-		"Name":         pc.Name,
-		"Description":  pc.Desc,
-		"Version":      pc.Version,
-		"URL":          pc.URL,
-		"Libs.private": strings.TrimSpace(strings.Join(pc.LibsPrivate, " ")),
-		"Libs":         strings.TrimSpace(strings.Join(pc.Libs, " ")),
-		"Cflags":       strings.TrimSpace(strings.Join(pc.Cflags, " ")),
+	for _, item := range []struct{ s, v string }{
+		{"Name", pc.Name},
+		{"Description", pc.Desc},
+		{"Version", pc.Version},
+		{"URL", pc.URL},
+		{"Libs.private", strings.TrimSpace(strings.Join(pc.LibsPrivate, " "))},
+		{"Libs", strings.TrimSpace(strings.Join(pc.Libs, " "))},
+		{"Cflags", strings.TrimSpace(strings.Join(pc.Cflags, " "))},
 	} {
-		if v != "" {
-			buf.WriteString(k)
+		if item.v != "" {
+			buf.WriteString(item.s)
 			buf.WriteByte(':')
 			buf.WriteByte(' ')
-			buf.WriteString(v)
+			buf.WriteString(item.v)
 			buf.WriteByte('\n')
 		}
 	}
