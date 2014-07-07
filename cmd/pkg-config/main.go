@@ -13,7 +13,7 @@
 // Example:
 //
 //   // #cgo pkg-config: libpng
-//   // #include <png.h>
+//   // #include <libpng12/png.h>
 //   import "C"
 //
 // The "#cgo pkg-config: png" directive makes a cgo tool query a pkg-config for
@@ -115,11 +115,17 @@
 //
 //   $ go get github.com/joe/png-wrapper
 //
+// Default behavior of cmd/pkg-config
+//
 // The cmd/pkg-config tool looks up a .pc file for a $LIBRARY in the following order:
 //
 //   - $GOPATH/lib/$GOOS_$GOARCH/$LIBRARY/$LIBRARY.pc
-//   - http://github.com/$USER/$PROJECT/releases/download/pkg-config/$LIBRARY.zip
+//   - if PKG_CONFIG_GITHUB=1 is exported, cmd/pkg-config tries to fetch library from
+//     http://github.com/$USER/$PROJECT/releases/download/pkg-config/$LIBRARY.zip
 //   - $PKG_CONFIG_PATH and eventual pkg-config's default search locations (platform-specific)
+//   - if no .pc file is found, pkg-config does its best to generate needed
+//     flags on-the-fly, assuming needed library files and headers are present
+//     in current $GOPATH as described above
 package main
 
 import (
@@ -129,14 +135,14 @@ import (
 	"github.com/rjeczalik/pkgconfig"
 )
 
-const USAGE = `NAME:
-		pkg-config - Go-centric pkg-config replacement
+const usage = `NAME:
+	pkg-config - Go-centric pkg-config replacement
 
 USAGE:
-		pkg-config --libs LIB
-		pkg-config --cflags LIB
-		pkg-config --cflags --libs LIB1 LIB2
-		pkg-config get github.com/USER/PROJECT LIB`
+	pkg-config --libs LIB
+	pkg-config --cflags LIB
+	pkg-config --cflags --libs LIB1 LIB2
+	pkg-config get github.com/USER/PROJECT LIB`
 
 func die(v ...interface{}) {
 	for _, v := range v {
@@ -151,12 +157,12 @@ func ishelp(s string) bool {
 
 func main() {
 	if len(os.Args) == 1 || (len(os.Args) == 2 && ishelp(os.Args[1])) {
-		fmt.Println(USAGE)
+		fmt.Println(usage)
 	} else {
 		switch os.Args[1] {
 		case "get":
 			if len(os.Args) != 4 {
-				die(USAGE)
+				die(usage)
 			}
 			_, err := pkgconfig.LookupGithubProj(os.Args[3], os.Args[2])
 			if err != nil {

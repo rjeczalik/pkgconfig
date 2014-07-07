@@ -13,10 +13,11 @@ import (
 	"strings"
 )
 
-var githubProj string
+var githubProj, wd string
 
 func init() {
-	if wd, err := os.Getwd(); err == nil {
+	var err error
+	if wd, err = os.Getwd(); err == nil {
 		githubProj = extractproj(wd, os.PathSeparator)
 	}
 }
