@@ -2,13 +2,19 @@ package pkgconfig
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestLookupGopath(t *testing.T) {
-	if err := os.Setenv("GOPATH", "testdata"); err != nil {
+	wd, err := os.Getwd()
+	if err != nil {
 		t.Fatalf("expected err=nil; was %q", err)
 	}
+	if err := os.Setenv("GOPATH", filepath.Join(wd, "testdata")); err != nil {
+		t.Fatalf("expected err=nil; was %q", err)
+	}
+	defaultGopath = gopath(os.PathListSeparator)
 	pc, err := LookupGopath("libgit2")
 	if err != nil {
 		t.Fatalf("expected err=nil; was %q", err)
