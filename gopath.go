@@ -87,7 +87,7 @@ func LookupGopath(pkg string) (*PC, error) {
 	)
 	look := func(path, _, lib string) bool {
 		file := filepath.Join(lib, pkg+".pc")
-		vars["GOPATH"] = path
+		vars["GOPATH"] = filepath.ToSlash(path)
 		if f, err = os.Open(file); err == nil {
 			pc, err = NewPCVars(f, vars)
 			f.Close()
