@@ -1,3 +1,3 @@
-module github.com/rjeczalik/pkgconfig
+module github.com/slory7/pkgconfig
 
 go 1.14
